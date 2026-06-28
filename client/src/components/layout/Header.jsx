@@ -9,16 +9,10 @@ export default function Header() {
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input placeholder="Search tasks..." className="pl-9" />
       </div>
-
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" aria-label="Notifications">
-          <Bell size={18} />
-        </Button>
-
-        <div className="grid size-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
-          RT
-        </div>
+      <div className="grid size-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-foreground">
+        RT
       </div>
+
     </header>
   );
 }

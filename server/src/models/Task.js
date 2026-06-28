@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
   {
-    userId: {
-      type: String,
-      required: true,
-      index: true,
-    },
     title: {
       type: String,
       required: [true, "Please add a task title"],
@@ -45,4 +40,5 @@ const taskSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
 export default mongoose.model("Task", taskSchema);

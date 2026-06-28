@@ -5,6 +5,8 @@ import TaskDialog from "../components/task/TaskDialog";
 import DeleteDialog from "../components/task/DeleteDialog";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
+import { useSearch } from "@/SearchContext";
+
 import {
   Select,
   SelectContent,
@@ -46,15 +48,18 @@ export default function Tasks() {
   const [editingTask, setEditingTask] = useState(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
-
+  const { search } = useSearch();
   const loadTasks = async () => {
+    
     try {
       setError("");
       setLoading(true);
       const data = await getTasks({
+        search,
         sort,
         limit: PAGE_LIMIT,
         offset,
+        search,
         ...(category.trim() ? { category: category.trim() } : {}),
       });
       setTasks(data.tasks);
@@ -68,7 +73,7 @@ export default function Tasks() {
 
   useEffect(() => {
     loadTasks();
-  }, [sort, category, offset]);
+  }, [search , sort, category, offset]);
 
   const handleSave = async (task) => {
     try {

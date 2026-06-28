@@ -11,20 +11,43 @@ export const createTaskService = async (taskData) => {
 };
 
 export const getAllTasksService = async (taskQuery) => {
-  const allowedSortFields = ["dueDate", "createdAt", "updatedAt", "priority", "progress", "title", "category"];
+  const allowedSortFields = [
+    "dueDate",
+    "createdAt",
+    "updatedAt",
+    "priority",
+    "progress",
+    "title",
+    "category",
+  ];
   const filter = {};
   const sortField = taskQuery.sort?.replace("-", "") || "dueDate";
   const sortDirection = taskQuery.sort?.startsWith("-") ? -1 : 1;
   const limit = Math.min(Math.max(Number(taskQuery.limit) || 10, 1), 500);
   const offset = Math.max(Number(taskQuery.offset) || 0, 0);
+  if (taskQuery.search?.trim()) {
+    const search = escapeRegex(taskQuery.search.trim());
 
-  if (!allowedSortFields.includes(sortField)) {
-    throw new Error(`Invalid sort field. Allowed fields are: ${allowedSortFields.join(", ")}`);
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+      { category: { $regex: search, $options: "i" } },
+    ];
   }
 
-  if (taskQuery.status)   filter.status = taskQuery.status;
+  if (!allowedSortFields.includes(sortField)) {
+    throw new Error(
+      `Invalid sort field. Allowed fields are: ${allowedSortFields.join(", ")}`,
+    );
+  }
+
+  if (taskQuery.status) filter.status = taskQuery.status;
   if (taskQuery.priority) filter.priority = taskQuery.priority;
-  if (taskQuery.category) filter.category = new RegExp(`^${escapeRegex(taskQuery.category.trim())}$`, "i");
+  if (taskQuery.category)
+    filter.category = new RegExp(
+      `^${escapeRegex(taskQuery.category.trim())}$`,
+      "i",
+    );
 
   const total = await Task.countDocuments(filter);
 
@@ -35,7 +58,12 @@ export const getAllTasksService = async (taskQuery) => {
       const bRank = priorityRank[b.priority] ?? 0;
       return (aRank - bRank) * sortDirection;
     });
-    return { tasks: sortedTasks.slice(offset, offset + limit), total, limit, offset };
+    return {
+      tasks: sortedTasks.slice(offset, offset + limit),
+      total,
+      limit,
+      offset,
+    };
   }
 
   const tasks = await Task.find(filter)
@@ -51,7 +79,10 @@ export const getTaskByIdService = async (taskId) => {
 };
 
 export const updateTaskService = async (taskId, updatedData) => {
-  return await Task.findByIdAndUpdate(taskId, updatedData, { new: true, runValidators: true });
+  return await Task.findByIdAndUpdate(taskId, updatedData, {
+    new: true,
+    runValidators: true,
+  });
 };
 
 export const deleteTaskService = async (taskId) => {
